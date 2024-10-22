@@ -13,8 +13,21 @@ import {
 } from "react-native-responsive-dimensions";
 import TabWrapper from "@/components/TabWrapper";
 import { router } from "expo-router";
+import { useState } from "react";
 
 export default function Profile() {
+	const [userData, setUserData] = useState<{
+		name: string;
+		email: string;
+		phone: string;
+		image: string | null;
+	}>({
+		name: "Donald",
+		email: "donald@gmail.com",
+		phone: "123321902",
+		image: null,
+	});
+
 	return (
 		<SafeAreaWrapper>
 			{/* Header */}
@@ -28,7 +41,14 @@ export default function Profile() {
 				<Link href="/(root)/(tabs)/Home">
 					<FontAwesome6 name="arrow-left-long" size={24} color="#737373" />
 				</Link>
-				<TouchableOpacity onPress={() => router.push("/(root)/ProfileEdit")}>
+				<TouchableOpacity
+					onPress={() =>
+						router.push({
+							pathname: "/(root)/ProfileEdit",
+							params: userData,
+						})
+					}
+				>
 					<FontAwesome6 name="edit" size={24} color="#737373" />
 				</TouchableOpacity>
 			</View>
@@ -61,13 +81,13 @@ export default function Profile() {
 							fontWeight: "bold",
 						}}
 					>
-						John Deo
+						{userData.name}
 					</Text>
 					<Text
 						className="text-gray-500"
 						style={{ fontSize: responsiveFontSize(2) }}
 					>
-						johndeo@gmail.com
+						{userData.email}
 					</Text>
 				</View>
 				{/* Tabs */}
