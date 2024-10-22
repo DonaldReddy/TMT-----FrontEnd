@@ -16,7 +16,7 @@ export default function Details({ tripID }: { tripID: string }) {
 	// }
 
 	const [tripDetails, setTripDetails] = useState({
-		tripID: "",
+		tripID,
 		category: "",
 		from: "",
 		to: "",
