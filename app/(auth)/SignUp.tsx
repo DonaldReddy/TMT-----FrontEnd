@@ -35,8 +35,6 @@ export default function SignUp() {
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-	const [selectedCountry, setSelectedCountry] = useState("");
-
 	const [userData, setUserData] = useState({
 		name: "",
 		email: "",
@@ -58,10 +56,7 @@ export default function SignUp() {
 	useEffect(() => {
 		const fetchCountries = async () => {
 			try {
-				// const response = await fetch(`${BASE_URL}/tmt/countries`);
-				const response = await fetch(
-					`https://88.222.212.112:8080/tmt/countries`,
-				);
+				const response = await fetch(`${BASE_URL}/tmt/countries`);
 				const data = await response.json();
 				setCountries(data);
 				console.log("countries", countries);
@@ -75,29 +70,22 @@ export default function SignUp() {
 	const validateForm = () => {
 		let newErrors: FormErrors = {};
 
-		if (!userData.name.trim()) {
-			newErrors.name = "Name is required";
-		} else if (userData.name.length < 3) {
+		if (userData.name.trim() && userData.name.length < 3) {
 			newErrors.name = "Name must be at least 3 characters";
 		}
 
-		if (!userData.email.trim()) {
-			newErrors.email = "Email is required";
-		} else if (!/^\S+@\S+\.\S+$/.test(userData.email)) {
+		if (userData.email.trim() && !/^\S+@\S+\.\S+$/.test(userData.email)) {
 			newErrors.email = "Invalid email format";
 		}
 
-		if (!userData.phone.trim()) {
-			newErrors.phone = "Phone Number is required";
-		} else if (userData.phone.length !== 10) {
+		if (userData.phone.trim() && userData.phone.length !== 10) {
 			newErrors.phone = "Phone Number must be 10 characters";
 		}
 
-		if (!userData.password.trim()) {
-			newErrors.password = "Password is required";
-		} else if (userData.password.length < 8) {
+		if (userData.password.trim() && userData.password.length < 8) {
 			newErrors.password = "Password must be at least 8 characters";
 		} else if (
+			userData.password.trim() &&
 			!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
 				userData.password,
 			)
@@ -107,13 +95,13 @@ export default function SignUp() {
 		}
 
 		if (
-			userData.password !== userData.confirmPassword ||
-			!userData.confirmPassword
+			userData.password.trim() &&
+			userData.password !== userData.confirmPassword
 		) {
 			newErrors.confirmPassword = "Passwords do not match";
 		}
 
-		if (!userData.nationality.trim()) {
+		if (userData.nationality == "default") {
 			newErrors.nationality = "Select a country";
 		}
 
@@ -130,7 +118,7 @@ export default function SignUp() {
 				email: userData.email,
 				password: userData.password,
 				mobileNo: userData.phone,
-				nationality: selectedCountry,
+				nationality: userData.nationality,
 			};
 
 			console.log(data);
@@ -164,6 +152,10 @@ export default function SignUp() {
 			console.error("Error during sign-up process:", error);
 		}
 	};
+
+	useEffect(() => {
+		validateForm();
+	}, [userData]);
 
 	return (
 		<SafeAreaWrapper>
@@ -248,7 +240,7 @@ export default function SignUp() {
 					<InputField
 						label="Password"
 						placeholder="Enter your password"
-						secureTextEntry={showPassword}
+						secureTextEntry={!showPassword}
 						value={userData.password}
 						onChangeText={(value) =>
 							setUserData({ ...userData, password: value })
@@ -269,7 +261,7 @@ export default function SignUp() {
 					<InputField
 						label="Confirm Password"
 						placeholder="Confirm your password"
-						secureTextEntry={showConfirmPassword}
+						secureTextEntry={!showConfirmPassword}
 						value={userData.confirmPassword}
 						onChangeText={(value) =>
 							setUserData({ ...userData, confirmPassword: value })
@@ -302,13 +294,12 @@ export default function SignUp() {
 						<View className="border border-neutral-300 bg-neutral-100 focus:border-primary-500  rounded-full">
 							<Picker
 								className="w-full"
-								selectedValue={selectedCountry}
+								selectedValue={userData.nationality}
 								onValueChange={(value) => {
-									setSelectedCountry(value);
-									console.log(value);
+									setUserData({ ...userData, nationality: value });
 								}}
 							>
-								<Picker.Item label="-- Select Country --" value="" />
+								<Picker.Item label="-- Select Country --" value="default" />
 								{countries.map((con, index) => (
 									<Picker.Item
 										key={index}
@@ -338,7 +329,7 @@ export default function SignUp() {
 								userData.phone === "" ||
 								userData.password === "" ||
 								userData.confirmPassword === "" ||
-								selectedCountry === ""
+								userData.nationality === ""
 							}
 							bgVariant={
 								userData.name === "" ||
@@ -346,7 +337,7 @@ export default function SignUp() {
 								userData.phone === "" ||
 								userData.password === "" ||
 								userData.confirmPassword === "" ||
-								selectedCountry === ""
+								userData.nationality === ""
 									? "secondary"
 									: "default"
 							}

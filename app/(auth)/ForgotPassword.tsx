@@ -2,7 +2,7 @@ import { View, Text, Alert } from "react-native";
 import { Link, router } from "expo-router";
 import InputField from "../../components/InputField";
 import CustomButton from "../../components/CustomButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // import { BASE_URL } from "@env";
 import { FormErrors } from "@/types/type";
 import SafeAreaWrapper from "@/components/SafeAreaWrapper";
@@ -24,9 +24,7 @@ export default function ForgotPassword() {
 	const validateForm = () => {
 		let newErrors: FormErrors = {};
 
-		if (!userData.email.trim()) {
-			newErrors.email = "Email is required";
-		} else if (!/^\S+@\S+\.\S+$/.test(userData.email)) {
+		if (userData.email.trim() && !/^\S+@\S+\.\S+$/.test(userData.email)) {
 			newErrors.email = "Invalid email format";
 		}
 
@@ -77,6 +75,10 @@ export default function ForgotPassword() {
 			console.log(error);
 		}
 	};
+
+	useEffect(() => {
+		validateForm();
+	}, [userData]);
 
 	return (
 		<SafeAreaWrapper>
