@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, router } from "expo-router";
 import InputField from "../../components/InputField";
 import CustomButton from "../../components/CustomButton";
@@ -35,17 +35,14 @@ export default function SignIn() {
 	const validateForm = () => {
 		let newErrors: FormErrors = {};
 
-		if (!userData.email.trim()) {
-			newErrors.email = "Email is required";
-		} else if (!/^\S+@\S+\.\S+$/.test(userData.email)) {
+		if (userData.email.trim() && !/^\S+@\S+\.\S+$/.test(userData.email)) {
 			newErrors.email = "Invalid email format";
 		}
 
-		if (!userData.password.trim()) {
-			newErrors.password = "Password is required";
-		} else if (userData.password.length < 8) {
+		if (userData.password.trim() && userData.password.length < 8) {
 			newErrors.password = "Password must be at least 8 characters";
 		} else if (
+			userData.password.trim() &&
 			!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
 				userData.password,
 			)
@@ -53,6 +50,7 @@ export default function SignIn() {
 			newErrors.password =
 				"Password must contain at least 1 upper-case letter, 1 lower-case letter, 1 number, and 1 special character";
 		}
+
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
 	};
@@ -98,6 +96,10 @@ export default function SignIn() {
 			console.log(error);
 		}
 	};
+
+	useEffect(() => {
+		validateForm();
+	}, [userData]);
 
 	return (
 		<SafeAreaWrapper>
@@ -151,7 +153,7 @@ export default function SignIn() {
 					<InputField
 						label="Password"
 						placeholder="Enter your password"
-						secureTextEntry={showPassword}
+						secureTextEntry={!showPassword}
 						value={userData.password}
 						onChangeText={(value) =>
 							setUserData({ ...userData, password: value })

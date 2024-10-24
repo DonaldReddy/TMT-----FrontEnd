@@ -102,11 +102,12 @@ export default function Otp() {
 		}
 	};
 
-	const onResend = () => {
-		setCount(10);
-		// TODO: API call to resend otp
-		console.log(otp);
-	};
+	async function onResend() {
+		try {
+			setCount(10);
+			// TODO: API call to resend otp
+		} catch (error) {}
+	}
 
 	return (
 		<SafeAreaWrapper>

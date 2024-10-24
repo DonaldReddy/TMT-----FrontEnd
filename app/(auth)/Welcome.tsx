@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, Image } from "react-native";
-import { useState, useRef } from "react";
-import { router } from "expo-router";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { router, useFocusEffect } from "expo-router";
 import Swiper from "react-native-swiper";
 import { onboarding } from "../../constants";
 import CustomButton from "../../components/CustomButton";
@@ -11,25 +11,46 @@ import {
 	responsiveFontSize,
 } from "react-native-responsive-dimensions";
 import SafeAreaWrapper from "@/components/SafeAreaWrapper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Welcome() {
 	const swiperRef = useRef<Swiper>(null);
 	const [activeIndex, setActiveIndex] = useState(0);
 	const isLastSlide = activeIndex === onboarding.length - 1;
 
-	const handleNext = () => {
+	async function addToAsync() {
+		await AsyncStorage.setItem("onboardingCompleted", "true");
+	}
+
+	async function handleNext() {
 		if (swiperRef.current && !isLastSlide) {
 			swiperRef.current.scrollBy(1);
 		} else {
+			addToAsync();
 			router.push("/(auth)/Initial");
 		}
-	};
+	}
+
+	useFocusEffect(
+		useCallback(() => {
+			(async () => {
+				const onboardingCompleted = await AsyncStorage.getItem(
+					"onboardingCompleted",
+				);
+
+				if (onboardingCompleted) {
+					router.push("/(auth)/Initial");
+				}
+			})();
+		}, []),
+	);
 
 	return (
 		<SafeAreaWrapper>
 			<View className="flex flex-1 items-center bg-primary-300">
 				<TouchableOpacity
-					onPress={() => {
+					onPress={async () => {
+						await addToAsync();
 						router.push("/(root)/Details");
 					}}
 					className="w-full flex justify-end items-end p-5"
