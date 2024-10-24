@@ -67,10 +67,6 @@ export default function SignUp() {
 		fetchCountries();
 	}, []);
 
-	useEffect(() => {
-		validateForm();
-	}, [userData]);
-
 	const validateForm = () => {
 		let newErrors: FormErrors = {};
 
@@ -156,6 +152,10 @@ export default function SignUp() {
 			console.error("Error during sign-up process:", error);
 		}
 	};
+
+	useEffect(() => {
+		validateForm();
+	}, [userData]);
 
 	return (
 		<SafeAreaWrapper>

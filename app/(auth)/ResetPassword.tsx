@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, router } from "expo-router";
 import KeyboardingAvoidWrapper from "../../components/KeyboardingAvoidWrapper";
 import InputField from "../../components/InputField";
@@ -30,11 +30,10 @@ export default function ResetPassword() {
 	const validateForm = () => {
 		let newErrors: FormErrors = {};
 
-		if (!userData.password.trim()) {
-			newErrors.password = "Password is required";
-		} else if (userData.password.length < 8) {
+		if (userData.password.trim() && userData.password.length < 8) {
 			newErrors.password = "Password must be at least 8 characters";
 		} else if (
+			userData.password.trim() &&
 			!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
 				userData.password,
 			)
@@ -43,7 +42,10 @@ export default function ResetPassword() {
 				"Password must contain at least 1 upper-case letter, 1 lower-case letter, 1 number, and 1 special character";
 		}
 
-		if (userData.password !== userData.confirmPassword) {
+		if (
+			userData.password.trim() &&
+			userData.password !== userData.confirmPassword
+		) {
 			newErrors.confirmPassword = "Passwords do not match";
 		}
 
@@ -91,6 +93,10 @@ export default function ResetPassword() {
 		}
 	};
 
+		useEffect(() => {
+			validateForm();
+		}, [userData]);
+
 	return (
 		<SafeAreaWrapper>
 			<View
@@ -126,7 +132,7 @@ export default function ResetPassword() {
 							fontSize: responsiveFontSize(1.8),
 						}}
 					>
-						Enter your new password to reset your account
+						Enter your new password for your account
 					</Text>
 				</View>
 
@@ -139,7 +145,7 @@ export default function ResetPassword() {
 					<InputField
 						label="Password"
 						placeholder="Enter your password"
-						secureTextEntry={showPassword}
+						secureTextEntry={!showPassword}
 						value={userData.password}
 						onChangeText={(value) =>
 							setUserData({ ...userData, password: value })
@@ -160,7 +166,7 @@ export default function ResetPassword() {
 					<InputField
 						label="Confirm Password"
 						placeholder="Confirm your password"
-						secureTextEntry={showConfirmPassword}
+						secureTextEntry={!showConfirmPassword}
 						value={userData.confirmPassword}
 						onChangeText={(value) =>
 							setUserData({ ...userData, confirmPassword: value })
